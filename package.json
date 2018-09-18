@@ -31,7 +31,7 @@
     "passport-http-bearer": "^1.0.1",
     "yargs": "^4.8.0"
   },
-  "author": "Corunet S.L.",
+  "author": "T.N. Koevoets",
   "license": "MIT",
   "devDependencies": {
     "eslint": "^3.19.0",
