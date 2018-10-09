@@ -46,14 +46,14 @@ const argv = require('yargs')
       describe: 'Port number the service will listen to',
       type: 'number',
       group: 'Image service',
-      default: 9999
+      default: process.env.PORT_API || 9999
     },
     'portImageSteam': {
       alias: 'pis',
       describe: 'Port number the Image server will listen to',
       type: 'number',
       group: 'Image service',
-      default: 13337
+      default: process.env.PORT_IMAGE_SERVER ||  13337
     },
   })
   .help()
@@ -70,7 +70,7 @@ passport.use(new Strategy(
 ));
 
 /**
- * Instantiate the Image server
+ * Instantiate the Image steam server, and proxy it with
  */
 const ImageServer = new  imgSteam.http.Connect(imageSteamConfig);
 const imageHandler = ImageServer.getHandler();
@@ -78,24 +78,28 @@ const imageHandler = ImageServer.getHandler();
 app.get('/image/*',
   function(req, res, next) {
     req.url = req.url.replace('/image', '');
+    /**
+     * Pass request en response to the imageserver
+     */
     imageHandler(req, res);
 
+    /**
+     * Most error is not found
+     * @TODO: requires debugging if other errors are handled by server
+     */
     ImageServer.on('error', (err) => {
       err.status = 404;
       err.msg = 'Not found';
-
       next(err);
     });
 });
 
-// http://localhost:9999/image/rijksmuseum.jpg/:/rs=w:400,h:600,m/cr=w:400,h:600
-
+/**
+ *  The url for creating one Image
+ */
 app.post('/image',
   passport.authenticate('bearer', { session: false }),
   upload.single('image'), (req, res, next) => {
-    console.log('-------->');
-    console.log('req.file', req.file);
-
   // req.file is the `image` file
   // req.body will hold the text fields, if there were any
   res.setHeader('Content-Type', 'application/json');
@@ -129,4 +133,5 @@ app.use(function (err, req, res, next) {
 
 app.listen(argv.port, function () {
   console.log('Application listen on port %d...', argv.port);
+  //console.log('Image  server listening on port %d...', argv.portImageSteam);
 });
