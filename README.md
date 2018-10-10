@@ -65,7 +65,7 @@ npm run start
 ```
 
 
-##Clients
+## Clients
 For every site create a row in the MySQL clients table. Generate a random token that's safe. Currently there is no interface for creating so create it command line or through an mysql interface like sequelpro or phpmyadmin.
 
 ## Uploading an image
