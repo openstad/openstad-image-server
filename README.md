@@ -11,7 +11,6 @@ Knex migrations
  - [Node.js and npm](https://nodejs.org/en/)
  - [ImageMagick](http://www.imagemagick.org/script/index.php)
  - [MySQL](https://www.mysql.com/)
- - [Redis](http://redis.io/) (optional)
 
 ## Installation
 #### 1. Run npm install
@@ -20,7 +19,7 @@ Knex migrations
 npm i
 ```
 
-#### 2. Configure .env.
+#### 2. Configure .env
 
 ```
 DB_NAME=
@@ -63,11 +62,11 @@ npm run start
 ```
 
 
-## Clients
-Create a row in the MySQL clients table. Generate a random token that's safe. Currently there is no interface for creating so create it command line or through an mysql interface like sequelpro or phpmyadmin.
+##<a name="clients"></a> Clients
+For every site create a row in the MySQL clients table. Generate a random token that's safe. Currently there is no interface for creating so create it command line or through an mysql interface like sequelpro or phpmyadmin.
 
 ## Uploading an image
-Example with node.js, using node-fetch & form-data.
+Example with node.js, using node-fetch & form-data. Notice dotenv is used for API values.
 
 ```
 const FormData = require('form-data');
@@ -96,4 +95,10 @@ exports.upload = function (token, buffer, fileName) {
 
 ## Displaying & Resizing image
 
+Example for creating a thumbnail resize and crop:
+
+```
+http://imageserver.com/image/path.png/:/rs=w:350,h:250;cp=w:350,h:250
+```
+For all options (resizing, cropping, filter, etc) check [node-steam](https://github.com/asilvas/node-image-steam).
 
