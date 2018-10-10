@@ -27,14 +27,19 @@ const imageSteamConfig = {
        "path": "./images",
      },
   },
-  "throttle": {
-      "ccProcessors": 4,
-      "ccPrefetchers": 20,
-      "ccRequests": 100
-  },
+
   log : {
     errors: false
   }
+}
+
+
+if (process.env.THROTTLE) {
+  imageSteamConfig.throttle =  {
+      "ccProcessors": process.env.THROTTLE_CC_PROCESSORS,
+      "ccPrefetchers": process.env.THROTTLE_CC_PREFETCHER,
+      "ccRequests": process.env.THROTTLE_CC_REQUESTS
+  };
 }
 
 const argv = require('yargs')
@@ -78,6 +83,7 @@ const imageHandler = ImageServer.getHandler();
 app.get('/image/*',
   function(req, res, next) {
     req.url = req.url.replace('/image', '');
+
     /**
      * Pass request en response to the imageserver
      */
@@ -124,7 +130,7 @@ app.post('/images',
 
 app.use(function (err, req, res, next) {
   const status = err.status ?  err.status : 500;
-  console.log('err', err);
+  //console.log('err', err);
   res.setHeader('Content-Type', 'application/json');
   res.status(status).send(JSON.stringify({
     error: err.msg

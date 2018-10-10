@@ -4,7 +4,7 @@ A simple express server that allows images to be uploaded with Multer and resize
 
 Http-bearer is used fo validating requests so only registered clients can upload images.
 
-Knex migrations
+Knex migrations create the clients table for registering clients that are allowed to use the API.
 
 ## Prerequisites
  - [Git](https://git-scm.com/)
@@ -27,6 +27,7 @@ DB_USER=
 DB_PASSWORD=
 PORT_API=
 PORT_IMAGE_SERVER=
+IMAGES_DIR=
 THROTTLE=true
 THROTTLE_CC_PROCESSORS=4
 THROTTLE_CC_PREFETCHER= 20
@@ -36,6 +37,8 @@ APP_URL=
 For throttle see options in [node-steam](https://github.com/asilvas/node-image-steam#throttle-options).
 
 The app url is used to return a full url after upload.
+
+Images directory defaults to images, if doesn't get created, create it manually. 
 
 
 #### 3. Install knex globally
@@ -66,7 +69,7 @@ npm run start
 For every site create a row in the MySQL clients table. Generate a random token that's safe. Currently there is no interface for creating so create it command line or through an mysql interface like sequelpro or phpmyadmin.
 
 ## Uploading an image
-Example with node.js, using node-fetch & form-data. Notice dotenv is used for API values.
+Example with node.js, using node-fetch & form-data. Notice dotenv is used for API values. Pass the access_token that you've generated for the client. (For security make sure it's over HTTPS)
 
 ```
 const FormData = require('form-data');
@@ -101,4 +104,3 @@ Example for creating a thumbnail resize and crop:
 http://imageserver.com/image/path.png/:/rs=w:350,h:250;cp=w:350,h:250
 ```
 For all options (resizing, cropping, filter, etc) check [node-steam](https://github.com/asilvas/node-image-steam).
-
