@@ -38,7 +38,7 @@ For throttle see options in [node-steam](https://github.com/asilvas/node-image-s
 
 The app url is used to return a full url after upload.
 
-Images directory defaults to images, if doesn't get created, create it manually. 
+Images directory defaults to images, if doesn't get created, create it manually.
 
 
 #### 3. Install knex globally
@@ -65,7 +65,7 @@ npm run start
 ```
 
 
-##<a name="clients"></a>Clients
+##Clients
 For every site create a row in the MySQL clients table. Generate a random token that's safe. Currently there is no interface for creating so create it command line or through an mysql interface like sequelpro or phpmyadmin.
 
 ## Uploading an image
