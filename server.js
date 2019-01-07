@@ -15,9 +15,23 @@ const db = require('./db');
 const upload = multer({
     dest: 'images/',
     onError : function(err, next) {
-      console.log('--> error', err);
       next(err);
-    }
+    },
+    fileFilter: function (req, file, cb) {
+      const allowedTypes = [
+        'image/gif',
+        'image/jpeg',
+        'image/png',
+        'image/svg+xml'
+      ];
+
+     if (allowedTypes.indexOf(file.mimetype) === -1) {
+      req.fileValidationError = 'goes wrong on the mimetype';
+      return cb(null, false, new Error('goes wrong on the mimetype'));
+     }
+
+     cb(null, true);
+   }
 });
 
 const imageSteamConfig = {
@@ -109,6 +123,10 @@ app.post('/image',
   // req.file is the `image` file
   // req.body will hold the text fields, if there were any
   res.setHeader('Content-Type', 'application/json');
+
+//  console.log('--> upload image file', req.file);
+//  console.log('--> upload image filename', req.file.filename);
+
 
   res.send(JSON.stringify({
     url: process.env.APP_URL + '/image/' + req.file.filename
