@@ -15,10 +15,13 @@
   "description": "Amsterdam Image server, for uploading and resizing images",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "concurrently \"knex migrate:latest\" \"node server.js\"",
+    "app": "node server.js"
   },
   "dependencies": {
     "bookshelf": "^0.13.3",
+    "concurrently": "^4.1.0",
     "dotenv": "^6.0.0",
     "express": ">4.4.0",
     "express-json-error-handler": "^2.0.0",
@@ -32,6 +35,7 @@
     "mysql": "^2.16.0",
     "passport": "^0.4.0",
     "passport-http-bearer": "^1.0.1",
+    "pg": "^7.9.0",
     "yargs": "^4.8.0"
   },
   "author": "T.N. Koevoets",

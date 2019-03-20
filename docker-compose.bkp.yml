@@ -1,0 +1,31 @@
+version: '0.1'
+services:
+  database:
+    image: amsterdam/postgres
+    ports:
+      - "5406:5432"
+    environment:
+      POSTGRES_PASSWORD: insecure
+      POSTGRES_DB: openstad_image_server
+      POSTGRES_USER: openstad_image_server
+    volumes:
+      - tmpdatabase:/tmp
+      - "~/.ssh/datapunt.key:/root/.ssh/datapunt.key"
+
+  app:
+    build: openstad_image_server
+    ports:
+      - "3333:3333"
+    links:
+      - database
+    volumes:
+      - $PWD/data:/app/data
+    environment:
+      DATABASE_NAME: openstad_image_server
+      DATABASE_USER: openstad_image_server
+      DATABASE_PASSWORD: insecure
+      PGPASSWORD: insecure
+
+
+volumes:
+   tmpdatabase:
