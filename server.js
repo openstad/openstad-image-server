@@ -40,13 +40,13 @@ const imageSteamConfig = {
        "driver": "fs",
        "path": "./images",
      },
+     "cacheTTS": 86400, /* 24 hrs */
+     "cacheOptimizedTTS": 86400, /* 12 hrs */
   },
-
   log : {
     errors: false
   }
-}
-
+};
 
 if (process.env.THROTTLE) {
   imageSteamConfig.throttle =  {
@@ -104,7 +104,7 @@ app.get('/image/*',
     imageHandler(req, res);
 
     /**
-     * Most error is not found
+     * Most errors is not found
      * @TODO: requires debugging if other errors are handled by server
      */
     ImageServer.on('error', (err) => {
