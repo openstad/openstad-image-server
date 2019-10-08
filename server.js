@@ -40,8 +40,8 @@ const imageSteamConfig = {
        "driver": "fs",
        "path": "./images",
      },
-     "cacheTTS": 86400, /* 24 hrs */
-     "cacheOptimizedTTS": 86400, /* 12 hrs */
+     "cacheTTS": 86400 * 14, /* 24 hrs */
+     "cacheOptimizedTTS": 86400 * 14, /* 12 hrs */
   },
   log : {
     errors: false
