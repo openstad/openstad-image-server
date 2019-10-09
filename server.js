@@ -40,8 +40,13 @@ const imageSteamConfig = {
        "driver": "fs",
        "path": "./images",
      },
-     "cacheTTS": 86400 * 14, /* 24 hrs */
-     "cacheOptimizedTTS": 86400 * 14, /* 12 hrs */
+     "cacheTTS": 86400 * 14, /* 24 * 14 hrs */
+     "cacheOptimizedTTS": 86400 * 14, /*  24 * 14 hrs */
+  },
+  "throttle": {
+    "ccProcessors": 4,
+    "ccPrefetchers": 20,
+    "ccRequests": 100
   },
   log : {
     errors: false
@@ -122,12 +127,10 @@ app.post('/image',
   upload.single('image'), (req, res, next) => {
   // req.file is the `image` file
   // req.body will hold the text fields, if there were any
-  res.setHeader('Content-Type', 'application/json');
-
-//  console.log('--> upload image file', req.file);
-//  console.log('--> upload image filename', req.file.filename);
-
-
+  //
+  if (!res.headerSent) {
+    res.setHeader('Content-Type', 'application/json');
+  }
   res.send(JSON.stringify({
     url: process.env.APP_URL + '/image/' + req.file.filename
   }));
@@ -138,7 +141,10 @@ app.post('/images',
   upload.array('images', 30), (req, res, next) => {
   // req.files is array of `photos` files
   // req.body will contain the text fields, if there were any
-  res.setHeader('Content-Type', 'application/json');
+  if (!res.headerSent) {
+    res.setHeader('Content-Type', 'application/json');
+  }
+
   res.send(JSON.stringify(req.files.map((file) => {
     return {
       url:process.env.APP_URL + '/image/' + req.file.filename
@@ -149,7 +155,9 @@ app.post('/images',
 app.use(function (err, req, res, next) {
   const status = err.status ?  err.status : 500;
   //console.log('err', err);
-  res.setHeader('Content-Type', 'application/json');
+  if (!res.headerSent) {
+    res.setHeader('Content-Type', 'application/json');
+  }
   res.status(status).send(JSON.stringify({
     error: err.msg
   }));
