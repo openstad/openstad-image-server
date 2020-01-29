@@ -99,6 +99,14 @@ passport.use(new Strategy(
 const ImageServer = new  imgSteam.http.Connect(imageSteamConfig);
 const imageHandler = ImageServer.getHandler();
 
+/**
+ * Most errors is not found
+ * @TODO: requires debugging if other errors are handled by server
+ */
+ImageServer.on('error', (err) => {
+  // Don't log 404 errors, so we do nothing here.
+});
+
 app.get('/image/*',
   function(req, res, next) {
     req.url = req.url.replace('/image', '');
@@ -107,16 +115,6 @@ app.get('/image/*',
      * Pass request en response to the imageserver
      */
     imageHandler(req, res);
-
-    /**
-     * Most errors is not found
-     * @TODO: requires debugging if other errors are handled by server
-     */
-    ImageServer.on('error', (err) => {
-      err.status = 404;
-      err.msg = 'Not found';
-      next(err);
-    });
 });
 
 /**
@@ -159,7 +157,7 @@ app.use(function (err, req, res, next) {
     res.setHeader('Content-Type', 'application/json');
   }
   res.status(status).send(JSON.stringify({
-    error: err.msg
+    error: err.message
   }));
 })
 
