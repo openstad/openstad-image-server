@@ -1,17 +1,12 @@
 require('dotenv').config();
-const fs = require('fs');
-const http = require('http');
 const express = require('express');
-const errorHandler  = require('express-json-errors');
-const jsonErrorHandler = require('express-json-error-handler').default;
-const proxy = require('http-proxy-middleware');
 const app = express();
 const imgSteam = require('image-steam');
 const multer = require('multer');
 const passport = require('passport');
 const Strategy = require('passport-http-bearer').Strategy;
 const db = require('./db');
-//const imageSteamConfig = require('./config/image-steam');
+
 const upload = multer({
     dest: 'images/',
     onError : function(err, next) {
