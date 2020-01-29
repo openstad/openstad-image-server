@@ -40,26 +40,19 @@ const imageSteamConfig = {
        "driver": "fs",
        "path": "./images",
      },
-     "cacheTTS": 86400 * 14, /* 24 * 14 hrs */
-     "cacheOptimizedTTS": 86400 * 14, /*  24 * 14 hrs */
+     "cacheTTS": process.env.CACHE_TTS || 86400 * 14, /* 24 * 14 hrs */
+     "cacheOptimizedTTS": process.env.CACHE_OPTIMEZED_TTS || 86400 * 14, /*  24 * 14 hrs */
+     "cacheArtifacts": process.env.CACHE_ARTIFACTS || true
   },
   "throttle": {
-    "ccProcessors": 4,
-    "ccPrefetchers": 20,
-    "ccRequests": 100
+    "ccProcessors":  process.env.THROTTLE_CC_PROCESSORS || 4,
+    "ccPrefetchers": process.env.THROTTLE_CC_PREFETCHER || 20,
+    "ccRequests": process.env.THROTTLE_CC_REQUESTS || 100
   },
   log : {
     errors: false
   }
 };
-
-if (process.env.THROTTLE) {
-  imageSteamConfig.throttle =  {
-      "ccProcessors": process.env.THROTTLE_CC_PROCESSORS,
-      "ccPrefetchers": process.env.THROTTLE_CC_PREFETCHER,
-      "ccRequests": process.env.THROTTLE_CC_REQUESTS
-  };
-}
 
 const argv = require('yargs')
   .usage('Usage: $0 [options] pathToImage')
