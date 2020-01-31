@@ -28,11 +28,13 @@ DB_PASSWORD=
 PORT_API=
 PORT_IMAGE_SERVER=
 IMAGES_DIR=
-THROTTLE=true
 THROTTLE_CC_PROCESSORS=4
 THROTTLE_CC_PREFETCHER= 20
 THROTTLE_CC_REQUESTS= 100
 APP_URL=
+CACHE_TTS=
+CACHE_OPTIMIZED_TTS=
+CACHE_OPTIMIZED_TTS=
 ```
 For throttle see options in [node-steam](https://github.com/asilvas/node-image-steam#throttle-options).
 
