@@ -22,8 +22,9 @@ COPY images ./images
 
 COPY knex/migrations ./migrations
 
-#RUN npm install knex -g
 RUN npm install
+RUN npm install knex -g
+
 #RUN knex migrate:latest
 
 
