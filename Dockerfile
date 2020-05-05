@@ -15,7 +15,8 @@ COPY . .
 COPY package*.json ./
 COPY knexfile.js ./
 COPY knex ./knex
-COPY images ./images
+#COPY images ./images
+RUN mkdir images
 
 #RUN apk add --no-cache --update openssl g++ make python musl-dev nodejs npm
 
