@@ -1,5 +1,4 @@
-FROM node:8
-
+FROM node:alpine
 
 # Create app directory
 WORKDIR /app
@@ -16,24 +15,17 @@ COPY package*.json ./
 COPY knexfile.js ./
 COPY knex ./knex
 #COPY images ./images
-RUN mkdir images
+RUN mkdir -p images
 
-#RUN apk add --no-cache --update openssl g++ make python musl-dev nodejs npm
+RUN apk add --no-cache --virtual .gyp python make g++ \
+    && npm install  --ignore-optional --ignore-scripts --pure-lockfile --non-interactive \
+    && apk del .gyp
+
+RUN npm install knex -g
 
 
 COPY knex/migrations ./migrations
 
-RUN npm install
-RUN npm install knex -g
-
-#RUN knex migrate:latest
-
-
-#RUN node db-migrate.js
-
-# If you are building your code for production
-# RUN npm ci --only=production
-#RUN apk del make python g++ && rm -rf /var/cache/apk/*
 
 # Bundle app source
 COPY . .
