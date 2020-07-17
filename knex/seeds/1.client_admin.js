@@ -11,9 +11,9 @@ exports.seed = function(knex, Promise) {
       // Inserts seed entries
       return knex('clients').insert([{
         id: 1,
-        clientName: 'Generated client',
+        clientName: 'First client',
         token: clientToken, //deprecated
-        displayName: "Generated client for DEV",
+        displayName: "First client for frontend",
       },
     ]);
   });
