@@ -8,7 +8,6 @@ ENV DB_NAME=""
 ENV DB_USER=""
 ENV DB_PASSWORD="abc"
 ENV DB_HOST=""
-ENV PORT_API=4100
 ENV PORT_IMAGE_SERVER=3000
 ENV IMAGES_DIR=/home/app/data
 ENV THROTTLE=true
@@ -35,10 +34,11 @@ RUN mkdir -p images
 
 RUN apt-get update; \
     apt-get install -y python make cmake git g++; \
-    npm install --ignore-optional; \
+    npm install --no-optional; \
     npm install knex -g; \
     apt-get remove -y make cmake git g++; \
     apt autoremove -y
+
 
 COPY knex/migrations ./migrations
 
