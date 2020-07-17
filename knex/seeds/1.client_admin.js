@@ -8,6 +8,7 @@ exports.seed = function(knex, Promise) {
       const clientToken = process.env.FIRST_IMAGE_API_ACCESS_TOKEN ? process.env.FIRST_IMAGE_API_ACCESS_TOKEN : rack();
       console.log('---->> seeds', clientToken);
 
+
       // Inserts seed entries
       return knex('clients').insert([{
         id: 1,
