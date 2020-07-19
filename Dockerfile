@@ -33,7 +33,7 @@ COPY knex ./knex
 RUN mkdir -p images
 
 RUN apt-get update; \
-    apt-get install -y python make cmake git g++; \
+    apt-get install -y python make cmake git bash g++; \
     npm install --no-optional; \
     npm install knex -g; \
     apt-get remove -y make cmake git g++; \
