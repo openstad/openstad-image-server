@@ -6,6 +6,7 @@ const multer = require('multer');
 const passport = require('passport');
 const Strategy = require('passport-http-bearer').Strategy;
 const db = require('./db');
+const fs  = require('fs');
 
 const upload = multer({
   dest: 'images/',
@@ -18,6 +19,25 @@ const upload = multer({
       'image/jpeg',
       'image/png',
       'image/svg+xml'
+    ];
+
+    if (allowedTypes.indexOf(file.mimetype) === -1) {
+      req.fileValidationError = 'goes wrong on the mimetype';
+      return cb(null, false, new Error('goes wrong on the mimetype'));
+    }
+
+    cb(null, true);
+  }
+});
+
+const uploadFile = multer({
+  dest: 'files/',
+  onError: function (err, next) {
+    next(err);
+  },
+  fileFilter: function (req, file, cb) {
+    const allowedTypes = [
+      'application/pdf',
     ];
 
     if (allowedTypes.indexOf(file.mimetype) === -1) {
@@ -109,6 +129,33 @@ app.get('/image/*',
     imageHandler(req, res);
   });
 
+
+app.get('/files/*',
+  function (req, res, next) {
+    console.log(req.url);
+
+    const filePath = req.url.replace(/^\/+/, '');;
+
+    // Check if file specified by the filePath exists
+    fs.exists(filePath, function(exists){
+      if (exists) {
+        // Content-type is very interesting part that guarantee that
+        // Web browser will handle response in an appropriate manner.
+        res.writeHead(200, {
+          "Content-Type": "application/octet-stream",
+          "Content-Disposition": "attachment; filename=test"
+        });
+        fs.createReadStream(filePath).pipe(res);
+      } else {
+        res.writeHead(400, {"Content-Type": "text/plain"});
+        res.end("ERROR File does not exist");
+      }
+    });
+
+
+
+  });
+
 /**
  *  The url for creating one Image
  */
@@ -140,6 +187,21 @@ app.post('/images',
         url: process.env.APP_URL + '/image/' + req.file.filename
       }
     })));
+  });
+
+app.post('/file',
+  passport.authenticate('bearer', {session: false}),
+  uploadFile.single('file'), (req, res, next) => {
+    // req.file is the `image` file
+    // req.body will hold the text fields, if there were any
+    //
+    if (!res.headerSent) {
+      res.setHeader('Content-Type', 'application/json');
+    }
+    console.log(req.file);
+    res.send(JSON.stringify({
+      url: process.env.APP_URL + '/files/' + req.file.filename
+    }));
   });
 
 app.use(function (err, req, res, next) {
