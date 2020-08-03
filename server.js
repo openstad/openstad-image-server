@@ -38,6 +38,10 @@ const uploadFile = multer({
   fileFilter: function (req, file, cb) {
     const allowedTypes = [
       'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     ];
 
     if (allowedTypes.indexOf(file.mimetype) === -1) {
