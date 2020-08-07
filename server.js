@@ -35,8 +35,9 @@ const upload = multer({
 const storage = multer.diskStorage({
   filename: function (req, file, cb) {
     const ext = file.originalname.substring(file.originalname.lastIndexOf('.'));
-    const filename = md5(Date.now() + '-' + file.originalname);
-    cb(null, filename + ext)
+    const originalname = file.originalname.substring(0, file.originalname.lastIndexOf('.'))
+    const filename = originalname + '-' + md5(Date.now() + '-' + file.originalname).substring(0, 5) + ext;
+    cb(null, filename)
   },
   destination: function (req, file, cb) {
     cb(null, 'files/')
@@ -153,10 +154,9 @@ app.get('/image/*',
 
 app.get('/files/*',
   function (req, res, next) {
-    console.log(req.url);
 
-    const filePath = req.url.replace(/^\/+/, '');;
-
+    const filePath = decodeURI(req.url.replace(/^\/+/, ''));;
+    
     // Check if file specified by the filePath exists
     fs.exists(filePath, function(exists){
       if (exists) {
