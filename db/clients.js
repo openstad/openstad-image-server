@@ -1,5 +1,6 @@
 const knex = require('../knex/knex.js');
 const bookshelf = require('bookshelf')(knex);
+
 const clients = bookshelf.Model.extend({
   tableName: 'clients',
   hasTimestamps: true,
@@ -14,7 +15,7 @@ exports.findByToken = function(token, cb) {
       .fetchAll()
       .then(function (records) {
         records = records.serialize();
-        
+
         for (var i = 0, len = records.length; i < len; i++) {
           var record = records[i];
           if (record.token === token) {

@@ -15,7 +15,7 @@
   "description": "Amsterdam Image server, for uploading and resizing images",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "dependencies": {
     "bookshelf": "^0.13.3",
@@ -43,6 +43,9 @@
     "eslint-plugin-import": "^2.6.1",
     "eslint-plugin-node": "^5.1.0",
     "eslint-plugin-promise": "^3.5.0",
-    "eslint-plugin-standard": "^3.0.1"
+    "eslint-plugin-standard": "^3.0.1",
+    "jest": "^23.1.0",
+    "mock-knex": "^0.4.9",
+    "supertest": "^4.0.2"
   }
 }
