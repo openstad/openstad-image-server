@@ -18,6 +18,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "aws-sdk": "^2.1001.0",
     "bcrypt": "^5.0.0",
     "bookshelf": "^0.13.3",
     "dotenv": "^6.0.0",
@@ -29,8 +30,10 @@
     "http": "0.0.0",
     "http-proxy-middleware": "^0.19.0",
     "image-steam": "^0.46.4",
+    "image-steam-s3": "^1.1.0",
     "knex": "^0.15.2",
     "multer": "^1.3.1",
+    "multer-s3": "^2.9.0",
     "mysql": "^2.18.1",
     "passport": "^0.4.0",
     "passport-http-bearer": "^1.0.1",
