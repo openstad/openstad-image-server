@@ -11,6 +11,7 @@ const db = require('./db');
 
 const multerConfig = {
   onError: function (err, next) {
+    console.error(err);
     next(err);
   },
   fileFilter: function (req, file, cb) {
@@ -51,18 +52,30 @@ const imageSteamConfig = {
 };
 
 if (process.env.S3_ENDPOINT) {
-  const s3 = new AWS.S3({
-    accessKeyId: process.env.S3_KEY,
-    secretAccessKey: process.env.S3_SECRET,
-    endpoint: process.env.S3_ENDPOINT
-  });
+  try {
+    const endpoint = new AWS.Endpoint(process.env.S3_ENDPOINT);
+    const s3 = new AWS.S3({
+      accessKeyId: process.env.S3_KEY,
+      secretAccessKey: process.env.S3_SECRET,
+      endpoint: endpoint
+    });
 
-  multerConfig.storage = multerS3({
-    s3: s3,
-    bucket: process.env.S3_BUCKET,
-    acl: 'public-read',
-  });
-
+    multerConfig.storage = multerS3({
+      s3: s3,
+      bucket: process.env.S3_BUCKET,
+      acl: 'public-read',
+      metadata: function (req, file, cb) {
+        cb(null, {
+          fieldName: file.fieldname
+        });
+      },
+      key: function (req, file, cb) {
+        cb(null, Date.now().toString())
+      }
+    });
+  } catch(error) {
+    console.error(error);
+  }
   imageSteamConfig.storage.defaults = {
       "driverPath": "image-steam-s3",
       "endpoint": process.env.S3_ENDPOINT,
@@ -148,8 +161,10 @@ app.post('/image',
     if (!res.headerSent) {
       res.setHeader('Content-Type', 'application/json');
     }
+
+    const fileName = req.file.filename || req.file.key;
     res.send(JSON.stringify({
-      url: process.env.APP_URL + '/image/' + req.file.filename
+      url: process.env.APP_URL + '/image/' + fileName
     }));
   });
 
@@ -162,16 +177,17 @@ app.post('/images',
       res.setHeader('Content-Type', 'application/json');
     }
 
+    const fileName = req.file.filename || req.file.key;
     res.send(JSON.stringify(req.files.map((file) => {
       return {
-        url: process.env.APP_URL + '/image/' + req.file.filename
+        url: process.env.APP_URL + '/image/' + fileName
       }
     })));
   });
 
 app.use(function (err, req, res, next) {
   const status = err.status ? err.status : 500;
-  //console.log('err', err);
+  console.error(err);
   if (!res.headerSent) {
     res.setHeader('Content-Type', 'application/json');
   }
