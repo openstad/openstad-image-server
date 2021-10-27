@@ -15,7 +15,9 @@
   "description": "Amsterdam Image server, for uploading and resizing images",
   "main": "server.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "lint": "npx eslint lib/** server.js app.js db/** --ext .js",
+    "prettier": "npx prettier --write lib/*.js app.js server.js db/*.js"
   },
   "dependencies": {
     "aws-sdk": "^2.1003.0",
@@ -39,13 +41,17 @@
   "license": "MIT",
   "devDependencies": {
     "eslint": "^3.19.0",
+    "eslint-config-prettier": "^8.3.0",
     "eslint-config-standard": "^10.2.1",
-    "eslint-plugin-import": "^2.6.1",
+    "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-node": "^5.1.0",
+    "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-sonarjs": "^0.10.0",
     "eslint-plugin-standard": "^3.0.1",
     "jest": "^23.1.0",
     "mock-knex": "^0.4.9",
+    "prettier": "^2.4.1",
     "supertest": "^4.0.2"
   }
 }
