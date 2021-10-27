@@ -1,0 +1,76 @@
+name: Gitops
+
+# Run this workflow every time a new commit pushed to your repository
+on:
+  workflow_dispatch:
+    inputs:
+      environmentValuesFile:
+        description: 'Gitops environment values file'
+        required: true
+        default: 'dev'
+  push:
+    branches:
+      - master
+      - development
+      - release/*
+
+jobs:
+  gitops:
+    environment: gitops
+    env:
+      HELM_REPO_NAME: openstad-kubernetes
+      HELM_CHART_FOLDER: k8s/openstad
+      GIT_USER_EMAIL: github@ci.push
+      GIT_USER_NAME: GitHub
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      HELM_REPO: ${{ secrets.HELM_REPO }}
+      HELM_REPO_WITH_TOKEN: ${{ secrets.HELM_REPO_WITH_TOKEN }}
+      GITOPS_RELEASE_BRANCH: ${{ secrets.GITOPS_RELEASE_BRANCH }}
+      BRANCH_REF: ${{ github.ref }}
+      GITOPS_VALUES_FILE: k8s/openstad/environments/dev.values.yaml
+
+    name: gitops commit
+    runs-on: ubuntu-latest
+
+    services:
+      docker:
+        image: docker
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set environment to acc
+        id: acc_values_file
+        shell: bash
+        if: contains(github.ref, 'release')
+        run: echo "GITOPS_VALUES_FILE=k8s/openstad/environments/acc.values.yaml" >> $GITHUB_ENV
+
+      - name: Set environment to production
+        id: prod_values_file
+        shell: bash
+        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/master'
+        run: echo "GITOPS_VALUES_FILE=k8s/openstad/environments/prod.values.yaml" >> $GITHUB_ENV
+
+      - name: Set commit SHA & current branch
+        id: vars
+        shell: bash
+        run: |
+          echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+          echo "::set-output name=current_branch::$(git branch --show-current | sed "s/\//-/g")"
+
+      - name: Install yq
+        run: sudo snap install yq --channel=v3/stable
+
+      - name: Run build script
+        run: docker build -t ${{ secrets.DOCKER_PUBLIC_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:${{ steps.vars.outputs.current_branch }}-${{ steps.vars.outputs.sha_short }}-${{ github.run_id }} .
+        shell: bash
+
+      - name: Run docker push script
+        run: |
+          sudo chmod a+x ./gitops_push
+          ./gitops_push
+        shell: bash
+        env:
+          IMAGE_TAG: ${{ secrets.DOCKER_PUBLIC_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:${{ steps.vars.outputs.current_branch }}-${{ steps.vars.outputs.sha_short }}-${{ github.run_id }}
