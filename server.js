@@ -5,23 +5,22 @@ const argv = require('yargs')
   .usage('Usage: $0 [options] pathToImage')
   .demand(0)
   .options({
-    'port': {
+    port: {
       alias: 'p',
       describe: 'Port number the service will listen to',
       type: 'number',
       group: 'Image service',
-      default: process.env.PORT_API || 9999
+      default: process.env.PORT_API || 9999,
     },
-    'portImageSteam': {
+    portImageSteam: {
       alias: 'pis',
       describe: 'Port number the Image server will listen to',
       type: 'number',
       group: 'Image service',
-      default: process.env.PORT_IMAGE_SERVER || 13337
+      default: process.env.PORT_IMAGE_SERVER || 13337,
     },
   })
-  .help()
-  .argv;
+  .help().argv;
 
 app.listen(argv.port, function () {
   console.log('Application listen on port %d...', argv.port);
