@@ -8,6 +8,9 @@ const multerS3 = require('multer-s3')
 const passport = require('passport');
 const Strategy = require('passport-http-bearer').Strategy;
 const db = require('./db');
+const fs  = require('fs');
+const md5 = require('md5');
+const mime = require('mime-types');
 
 const multerConfig = {
   onError: function (err, next) {
@@ -30,6 +33,45 @@ const multerConfig = {
     cb(null, true);
   }
 }
+
+const storage = multer.diskStorage({
+  filename: function (req, file, cb) {
+    const ext = file.originalname.substring(file.originalname.lastIndexOf('.'));
+    const originalname = file.originalname.substring(0, file.originalname.lastIndexOf('.'))
+    const filename = originalname + '-' + md5(Date.now() + '-' + file.originalname).substring(0, 5) + ext;
+    cb(null, filename)
+  },
+  destination: function (req, file, cb) {
+    cb(null, 'files/')
+  },
+                                   });
+const uploadFile = multer({
+  storage: storage,
+  dest: 'files/',
+  onError: function (err, next) {
+    next(err);
+  },
+  fileFilter: function (req, file, cb) {
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ];
+
+    if (allowedTypes.indexOf(file.mimetype) === -1) {
+      req.fileValidationError = 'goes wrong on the mimetype';
+      return cb(null, false, new Error('goes wrong on the mimetype'));
+    }
+
+    cb(null, true);
+  },
+  limits: {
+    // 15 mb limit
+    fileSize: 15*1024*1024
+  }
+});
 
 const imageSteamConfig = {
   "storage": {
@@ -149,6 +191,37 @@ app.get('/image/*',
     imageHandler(req, res);
   });
 
+
+app.get('/files/*',
+  function (req, res, next) {
+
+    const filePath = decodeURI(req.url.replace(/^\/+/, ''));;
+    
+    // Check if file specified by the filePath exists
+    fs.exists(filePath, function(exists){
+      if (exists) {
+        // Content-type is very interesting part that guarantee that
+        // Web browser will handle response in an appropriate manner.
+        
+        // Get filename
+        const filename = filePath.substring(filePath.lastIndexOf('/') + 1);
+        const mimeType = mime.lookup(filename);
+        
+        res.writeHead(200, {
+          "Content-Type": mimeType,
+          "Content-Disposition": "attachment; filename=" + filename
+        });
+        fs.createReadStream(filePath).pipe(res);
+      } else {
+        res.writeHead(400, {"Content-Type": "text/plain"});
+        res.end("ERROR File does not exist");
+      }
+    });
+
+
+
+  });
+
 /**
  *  The url for creating one Image
  */
@@ -183,6 +256,21 @@ app.post('/images',
         url: process.env.APP_URL + '/image/' + fileName
       }
     })));
+  });
+
+app.post('/file',
+  passport.authenticate('bearer', {session: false}),
+  uploadFile.single('file'), (req, res, next) => {
+    // req.file is the `image` file
+    // req.body will hold the text fields, if there were any
+    //
+    if (!res.headerSent) {
+      res.setHeader('Content-Type', 'application/json');
+    }
+    console.log(req.file);
+    res.send(JSON.stringify({
+      url: process.env.APP_URL + '/files/' + req.file.filename
+    }));
   });
 
 app.use(function (err, req, res, next) {
