@@ -54,6 +54,22 @@ describe('Test image server', () => {
     expect(res.statusCode).toEqual(200)
   });
 
+  it('Should upload a file', async () => {
+
+    tracker.on('query', (query) => {
+      query.response({id: '1', clientName: 'test', token: '123'});
+    });
+
+    const testFile = `${__dirname}/image/test-image.jpg`;
+
+    const res = await agent
+      .post('/file?access_token=123')
+      .attach('file', testFile)
+    ;
+
+    expect(res.statusCode).toEqual(200)
+  });
+
 });
 
 

@@ -1,25 +1,12 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
-const passport = require('passport');
-const Strategy = require('passport-http-bearer').Strategy;
-const db = require('./db');
+const passport = require('./lib/passport');
 const upload = require('./lib/multer');
 const ImageServer = require('./lib/imageServer').getImageServer();
-
-passport.use(new Strategy(
-  function (token, done) {
-    db.clients.findByToken(token, function (err, client) {
-      if (err) {
-        return done(err);
-      }
-      if (!client) {
-        return done(null, false);
-      }
-      return done(null, client, {scope: 'all'});
-    });
-  }
-));
+const s3 = require('./lib/s3');
+const fs = require('fs');
+const mime = require('mime-types');
 
 /**
  * Instantiate the Image steam server, and proxy it with
@@ -34,12 +21,27 @@ ImageServer.on('error', (err) => {
   // Don't log 404 errors, so we do nothing here.
 });
 
+// Global middleware to catch errors
+app.use(function (err, req, res, next) {
+  const status = err.status ? err.status : 500;
+  if (status > 500) {
+    console.error(err);
+  }
+
+  if (!res.headerSent) {
+    res.setHeader('Content-Type', 'application/json');
+  }
+  res.status(status).send(JSON.stringify({
+    error: err.message
+  }));
+});
+
 app.get('/image/*',
   function (req, res, next) {
     req.url = req.url.replace('/image', '');
 
     /**
-     * Pass request en response to the imageserver
+     * Pass request en response to the image server
      */
     imageHandler(req, res);
   });
@@ -56,8 +58,9 @@ app.post('/image',
     if (!res.headerSent) {
       res.setHeader('Content-Type', 'application/json');
     }
+    const filename = req.file.key || req.file.filename;
     res.send(JSON.stringify({
-      url: process.env.APP_URL + '/image/' + req.file.filename
+      url: process.env.APP_URL + '/image/' + filename
     }));
   });
 
@@ -71,21 +74,67 @@ app.post('/images',
     }
 
     res.send(JSON.stringify(req.files.map((file) => {
+      const filename = file.key || file.filename;
       return {
-        url: process.env.APP_URL + '/image/' + req.file.filename
+        url: process.env.APP_URL + '/image/' + filename
       }
     })));
   });
 
-app.use(function (err, req, res, next) {
-  const status = err.status ? err.status : 500;
-  //console.log('err', err);
-  if (!res.headerSent) {
-    res.setHeader('Content-Type', 'application/json');
-  }
-  res.status(status).send(JSON.stringify({
-    error: err.message
-  }));
-})
+app.post('/file',
+  passport.authenticate('bearer', {session: false}),
+  upload.single('file'), (req, res, next) => {
+    // req.file is the `image` file
+    // req.body will hold the text fields, if there were any
+    //
+    if (!res.headerSent) {
+      res.setHeader('Content-Type', 'application/json');
+    }
+
+    const filename = req.file.key || req.file.filename;
+    res.send(JSON.stringify({
+      url: process.env.APP_URL + '/files/' + filename
+    }));
+  });
+
+function handleFileResponse(filePath, readStream, res) {
+  // Content-type is very interesting part that guarantee that
+  // Web browser will handle response in an appropriate manner.
+
+  // Get filename
+  const filename = filePath.substring(filePath.lastIndexOf('/') + 1);
+  const mimeType = mime.lookup(filename);
+
+  res.writeHead(200, {
+    "Content-Type": mimeType,
+    "Content-Disposition": "attachment; filename=" + filename
+  });
+
+  readStream.pipe(res);
+}
+
+app.get('/files/*',
+  async function (req, res, next) {
+
+    const filePath = decodeURI(req.url.replace(/^\/+/, '').replace('files/', ''));
+
+    if (s3.isEnabled()) {
+      const readStream = s3.getFile(filePath).createReadStream();
+      return handleFileResponse(filePath, readStream, res);
+    }
+
+    // Check if file specified by the filePath exists
+    fs.exists(filePath, function(exists) {
+      if (exists) {
+        const readStream = fs.createReadStream(filePath)
+        handleFileResponse(filePath, readStream, res);
+      } else {
+        res.writeHead(400, {"Content-Type": "text/plain"});
+        res.end("ERROR File does not exist");
+      }
+    });
+  });
 
 module.exports = app;
+
+
