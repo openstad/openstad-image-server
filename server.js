@@ -3,13 +3,15 @@ const express = require('express');
 const app = express();
 const imgSteam = require('image-steam');
 const multer = require('multer');
+const AWS = require('aws-sdk')
+const multerS3 = require('multer-s3')
 const passport = require('passport');
 const Strategy = require('passport-http-bearer').Strategy;
 const db = require('./db');
 
-const upload = multer({
-  dest: 'images/',
+const multerConfig = {
   onError: function (err, next) {
+    console.error(err);
     next(err);
   },
   fileFilter: function (req, file, cb) {
@@ -27,7 +29,7 @@ const upload = multer({
 
     cb(null, true);
   }
-});
+}
 
 const imageSteamConfig = {
   "storage": {
@@ -45,9 +47,47 @@ const imageSteamConfig = {
     "ccRequests": process.env.THROTTLE_CC_REQUESTS || 100
   },
   log: {
-    errors: false
+    errors: true
   }
 };
+
+if (process.env.S3_ENDPOINT) {
+  try {
+    const endpoint = new AWS.Endpoint(process.env.S3_ENDPOINT);
+    const s3 = new AWS.S3({
+      accessKeyId: process.env.S3_KEY,
+      secretAccessKey: process.env.S3_SECRET,
+      endpoint: endpoint
+    });
+
+    multerConfig.storage = multerS3({
+      s3: s3,
+      bucket: process.env.S3_BUCKET,
+      acl: 'public-read',
+      metadata: function (req, file, cb) {
+        cb(null, {
+          fieldName: file.fieldname
+        });
+      },
+      key: function (req, file, cb) {
+        cb(null, Date.now().toString())
+      }
+    });
+  } catch(error) {
+    console.error(error);
+  }
+  imageSteamConfig.storage.defaults = {
+      "driverPath": "image-steam-s3",
+      "endpoint": process.env.S3_ENDPOINT,
+      "bucket": process.env.S3_BUCKET,
+      "accessKey": process.env.S3_KEY,
+      "secretKey": process.env.S3_SECRET
+  };
+} else {
+  multerConfig.dest = 'images/';
+}
+
+const upload = multer(multerConfig);
 
 const argv = require('yargs')
   .usage('Usage: $0 [options] pathToImage')
@@ -121,8 +161,10 @@ app.post('/image',
     if (!res.headerSent) {
       res.setHeader('Content-Type', 'application/json');
     }
+
+    const fileName = req.file.filename || req.file.key;
     res.send(JSON.stringify({
-      url: process.env.APP_URL + '/image/' + req.file.filename
+      url: process.env.APP_URL + '/image/' + fileName
     }));
   });
 
@@ -135,16 +177,17 @@ app.post('/images',
       res.setHeader('Content-Type', 'application/json');
     }
 
+    const fileName = req.file.filename || req.file.key;
     res.send(JSON.stringify(req.files.map((file) => {
       return {
-        url: process.env.APP_URL + '/image/' + req.file.filename
+        url: process.env.APP_URL + '/image/' + fileName
       }
     })));
   });
 
 app.use(function (err, req, res, next) {
   const status = err.status ? err.status : 500;
-  //console.log('err', err);
+  console.error(err);
   if (!res.headerSent) {
     res.setHeader('Content-Type', 'application/json');
   }
