@@ -73,3 +73,5 @@ images
 
 # Serverless directories
 .serverless
+.idea/modules.xml
+.idea/openstad-image-server.iml
