@@ -41,7 +41,7 @@ jobs:
           push: true
           # Note: tags has to be all lower-case
           tags: |
-            openstad/auth:${{ steps.get_version.outputs.VERSION }}
+            openstad/image:${{ steps.get_version.outputs.VERSION }}
           # build on feature branches, push only on main branch
           ##push: ${{ github.ref == 'refs/heads/main' }}
       - name: Image digest
