@@ -23,7 +23,7 @@
     "dotenv": "^6.0.0",
     "express": "^4.17.1",
     "gm": "^1.23.1",
-    "image-steam": "^0.59.0",
+    "image-steam": "^0.63.2",
     "image-steam-s3": "^1.1.0",
     "knex": "^0.95.11",
     "multer": "^1.4.3",
