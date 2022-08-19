@@ -2,6 +2,7 @@ const knex = require('../knex/knex.js');
 const bookshelf = require('bookshelf')(knex);
 const clients = bookshelf.Model.extend({
   tableName: 'clients',
+  requireFetch: false,
   hasTimestamps: true,
   hasTimestamps: ['created_at', 'updated_at']
 });
