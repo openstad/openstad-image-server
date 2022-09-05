@@ -106,3 +106,7 @@ Example for creating a thumbnail resize and crop:
 http://imageserver.com/image/path.png/:/rs=w:350,h:250;cp=w:350,h:250
 ```
 For all options (resizing, cropping, filter, etc) check [node-steam](https://github.com/asilvas/node-image-steam).
+
+## MySQL with SSL
+
+When you want to connect to a MySQL server using SSL, a Certificate Authority certificate is required. The contents of this CA certificate can be passed into the `MYSQL_CA_CERT` environment variable.
