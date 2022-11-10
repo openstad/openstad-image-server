@@ -3,6 +3,8 @@
 name: Build and Publish Version Tags
 on:
   push:
+    branches:
+      - '**'
     tags:
       - "v*"
 jobs:
@@ -11,18 +13,23 @@ jobs:
     name: Build Docker image and push to repositories
     # run only when code is compiling and tests are passing
     runs-on: ubuntu-latest
+    env:
+      IMAGE: ${{ secrets.DOCKER_IMAGE || 'openstad/image' }}
     # steps to perform in job
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Get the version
-        id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
-
-      #   - name: tag number
-      #        run : echo ${{ github.event.release.tag_name }}
-
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            # branch event
+            type=ref,event=branch,suffix=-{{sha}}
+            # tag event
+            type=ref,event=tag
       # setup Docker buld action
       - name: Set up Docker Buildx
         id: buildx
@@ -35,16 +42,26 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build image and push to Docker Hub and GitHub Container Registry
+        id: docker_build
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          # Note: tags has to be all lower-case
-          tags: |
-            openstad/image:${{ steps.get_version.outputs.VERSION }}
-          # build on feature branches, push only on main branch
-          ##push: ${{ github.ref == 'refs/heads/main' }}
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
+          tags: ${{ steps.meta.outputs.tags }}
 
+      # Comment build info in commit
+      - uses: actions/github-script@0.9.0
+        env:
+          STDOUT: "Published new image: `${{ fromJson(steps.docker_build.outputs.metadata)['image.name'] }}`"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: process.env.STDOUT
+            })
+      - name: Image digest
+        run: echo "${{ steps.docker_build.outputs.metadata }}"
        
