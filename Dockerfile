@@ -43,7 +43,6 @@ WORKDIR /app
 
 # Set node ownership to/home/app
 RUN mkdir -p images \
-&&  npm install -g knex
 
 COPY --chown=node:node --from=builder /app .
 COPY --chown=node:node . .

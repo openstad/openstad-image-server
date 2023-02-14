@@ -113,15 +113,17 @@ const argv = require('yargs')
 
 passport.use(new Strategy(
   function (token, done) {
-    db.clients.findByToken(token, function (err, client) {
-      if (err) {
+    db.Client
+      .findOne({ where: { token } })
+      .then(client => {
+        if (!client) {
+          return done(null, false);
+        }
+        return done(null, client, {scope: 'all'});
+      })
+      .catch(err => {
         return done(err);
-      }
-      if (!client) {
-        return done(null, false);
-      }
-      return done(null, client, {scope: 'all'});
-    });
+      })
   }
 ));
 

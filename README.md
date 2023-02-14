@@ -4,8 +4,6 @@ A simple express server that allows images to be uploaded with Multer and resize
 
 Http-bearer is used fo validating requests so only registered clients can upload images.
 
-Knex migrations create the clients table for registering clients that are allowed to use the API.
-
 ## Prerequisites
  - [Git](https://git-scm.com/)
  - [Node.js and npm](https://nodejs.org/en/)
@@ -43,20 +41,9 @@ The app url is used to return a full url after upload.
 Images directory defaults to images, if doesn't get created, create it manually.
 
 
-#### 3. Install knex globally
-
-```
-npm install knex -g
-```
-
-#### 4. Run knex migration
-
-```
-knex migrate:latest
-```
-
-#### 5. Add a client to mysql
-[See clients](#clients)
+#### 5. Init database
+This wilcretae a database and the first client
+```npm run init```
 
 #### 6. Run the server
 
