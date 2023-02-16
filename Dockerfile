@@ -42,7 +42,7 @@ ENV S3_BUCKET=""
 WORKDIR /app
 
 # Set node ownership to/home/app
-RUN mkdir -p images \
+RUN mkdir -p images
 
 COPY --chown=node:node --from=builder /app .
 COPY --chown=node:node . .
