@@ -2,10 +2,12 @@
 
 const { Sequelize } = require('sequelize');
 
-let ssl;
+let dialectOptions;
 if (process.env.MYSQL_CA_CERT) {
-  ssl = {
-    ca: process.env.MYSQL_CA_CERT
+  dialectOptions = {
+    ssl: {
+      ca: process.env.MYSQL_CA_CERT
+    }
   }
 }
 
@@ -17,7 +19,7 @@ let sequelize = new Sequelize({
   password: process.env.DB_PASSWORD,
   port:     process.env.DB_PORT || '3306',
 
-  ssl,
+  dialectOptions,
 
   dialect: process.env.DB_DIALECT || 'mysql',
 
