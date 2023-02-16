@@ -1,3 +1,20 @@
+# Image used for building dependencies
+FROM node:16.16-slim as builder
+
+# Create app directory
+WORKDIR /app
+
+# Install app dependencies
+# A wildcard is used to ensure both package.json AND package-lock.json are copied
+# where available (npm@5+)
+COPY --chown=node:node package*.json ./
+
+RUN   apt-get update \
+&&    apt-get install -y python3 make cmake git bash g++ \
+&&    npm config set unsafe-perm true \
+&&    npm install --no-optional --legacy-peer-deps
+
+# Release image 
 FROM node:16.16-slim
 
 # Label for tracking
@@ -9,7 +26,7 @@ ENV DB_USER=""
 ENV DB_PASSWORD="abc"
 ENV DB_HOST=""
 ENV PORT_IMAGE_SERVER=3000
-ENV IMAGES_DIR=/home/app/data
+ENV IMAGES_DIR=/app/images
 ENV THROTTLE=true
 ENV THROTTLE_CC_PROCESSORS=4
 ENV THROTTLE_CC_PREFETCHER=20
@@ -24,34 +41,13 @@ ENV S3_BUCKET=""
 # Create app directory
 WORKDIR /app
 
-# Copy all content to the Docker image.
-COPY . .
-
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-COPY package*.json ./
-COPY knexfile.js ./
-COPY knex ./knex
-
+# Set node ownership to/home/app
 RUN mkdir -p images
 
-RUN apt-get update; \
-    apt-get install -y python3 make cmake git bash g++; \
-    npm config set unsafe-perm true \
-    npm install -g node-gyp \
-    npm install --no-optional --legacy-peer-deps; \
-    npm install knex -g; \
-    apt-get remove -y make cmake git g++; \
-    apt autoremove -y
-
-
-COPY knex/migrations ./migrations
-
-# Set node ownership to/home/app
-RUN chown -R node:node /app
+COPY --chown=node:node --from=builder /app .
+COPY --chown=node:node . .
 USER node
 
-VOLUME /home/app/data
+VOLUME /app/images
 
 CMD [ "npm", "start" ]

@@ -36,10 +36,10 @@ const imageSteamConfig = {
     "defaults": {
       "driver": "fs",
       "path": "./images",
+      "cacheTTS": process.env.CACHE_TTS || 86400 * 14, /* 24 * 14 hrs */
+      "cacheOptimizedTTS": process.env.CACHE_OPTIMIZED_TTS || 86400 * 14, /*  24 * 14 hrs */
+      "cacheArtifacts": process.env.CACHE_ARTIFACTS || true
     },
-    "cacheTTS": process.env.CACHE_TTS || 86400 * 14, /* 24 * 14 hrs */
-    "cacheOptimizedTTS": process.env.CACHE_OPTIMIZED_TTS || 86400 * 14, /*  24 * 14 hrs */
-    "cacheArtifacts": process.env.CACHE_ARTIFACTS || true
   },
   "throttle": {
     "ccProcessors": process.env.THROTTLE_CC_PROCESSORS || 4,
@@ -113,15 +113,17 @@ const argv = require('yargs')
 
 passport.use(new Strategy(
   function (token, done) {
-    db.clients.findByToken(token, function (err, client) {
-      if (err) {
+    db.Client
+      .findOne({ where: { token } })
+      .then(client => {
+        if (!client) {
+          return done(null, false);
+        }
+        return done(null, client, {scope: 'all'});
+      })
+      .catch(err => {
         return done(err);
-      }
-      if (!client) {
-        return done(null, false);
-      }
-      return done(null, client, {scope: 'all'});
-    });
+      })
   }
 ));
 
