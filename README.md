@@ -42,7 +42,7 @@ Images directory defaults to images, if doesn't get created, create it manually.
 
 
 #### 5. Init database
-This wilcretae a database and the first client
+This will create a database and the first client
 ```npm run init```
 
 #### 6. Run the server
