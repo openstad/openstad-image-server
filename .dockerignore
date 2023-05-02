@@ -1,11 +1,15 @@
 .git
 .gitignore
+.github/
+.travis.yml
+docker_*
 Dockerfile
 .dockerignore
-data
+data/
 public/uploads
-node_modules
+node_modules/
 .env
 .DS_Store
 *.md 
 LICENSE
+images/

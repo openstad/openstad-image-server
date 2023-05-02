@@ -1,0 +1,7 @@
+{
+  "verbose": false,
+  "ext": "js,json,njk,html",
+  "ignore": [
+    "images/*"
+  ]
+}

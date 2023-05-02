@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.1
+* Replace bookshelf dependancy with Sequelize
+* Update docker images
+
+## v1.0.0
+* Allow connecting to MySQL through SSL by providing a CA certificate
+
 ## v0.40.0
 Update version number
 
