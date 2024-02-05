@@ -40,6 +40,10 @@ ENV S3_BUCKET=""
 
 # Create app directory
 WORKDIR /app
+RUN apt-get update \
+&&  apt-get install -y netcat \
+&&  apt-get clean \
+&&  rm -rf /var/lib/apt/lists/*
 
 # Set node ownership to/home/app
 RUN mkdir -p images
