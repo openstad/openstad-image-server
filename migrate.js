@@ -1,5 +1,5 @@
 var Umzug   = require('umzug');
-var db      = require('./src/db');
+var db      = require('./db');
 
 var umzug = new Umzug({
 	storage: 'sequelize',
