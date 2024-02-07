@@ -18,7 +18,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "aws-sdk": "^2.1003.0",
+    "@aws-sdk/client-s3": "^3.507.0",
     "dotenv": "^6.0.0",
     "express": "^4.17.1",
     "express-json-error-handler": "^2.0.0",
