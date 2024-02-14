@@ -48,6 +48,18 @@ const imageSteamConfig = {
   log: {
     errors: true,
   },
+  router: {
+    originalSteps: {
+      metadata: {
+        enabled: 'false',
+      },
+    },
+    hqOriginalSteps: {
+      metadata: {
+        enabled: 'false',
+      },
+    },
+  },
 };
 
 if (process.env.S3_ENDPOINT) {
