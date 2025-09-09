@@ -1,3 +1,8 @@
+> [!WARNING]  
+> This project has been migrated to a new **monorepo** and is no longer maintained here.  
+> Please visit the new repository: [openstad/openstad-headless](https://github.com/openstad/openstad-headless)
+> 
+> More information: [openstad.org](https://openstad.org/)
 
 # An Express Image Server with Node.js: for uploading and resizing images
 A simple express server that allows images to be uploaded with Multer and resizes the based on url scheme, resizing is done with the [node-steam](https://github.com/asilvas/node-image-steam#throttle-options) library.
